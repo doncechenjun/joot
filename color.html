@@ -1,0 +1,117 @@
+<html>
+ <head>
+	<style>
+		body{
+			color:white;
+			background:gray;
+			font-family:sans-serif;
+			margin:5vh;
+		}
+		div{
+			margin:5px;
+		}
+		
+		h1{
+			margin-top:2vh;
+			margin-bottom:35vh;
+			font-size:8vh;
+		}
+		input{
+			border:0 none;
+			background:gray;
+			color:white;
+			font-size:8vh;
+			width:10vw;
+		}
+		input[type="number"] {
+			-webkit-appearance: textfield;
+			-moz-appearance: textfield;
+			appearance: textfield;
+			color:black;
+		}
+		input[type="file"] {
+			display:none;
+		}
+		
+		.custom-file-upload {
+			margin-top:20px;
+			font-size:2vh;
+			border: 1px solid #ccc;
+			display: inline-block;
+			padding: 6px 12px;
+			cursor: pointer;
+		}
+		
+		
+		#cont3{
+			border-top:1px white solid;
+			font-size:8vh;
+			font-weight:lighter;
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			grid-gap: 10px;
+			grid-auto-rows: minmax(100px, auto);
+		}
+		button{
+			border:0 none;
+			width:20vw;
+			height:20vw;
+			border-radius:100%;
+			margin:20px;
+			font-size:8vh;
+			color:#e9e9e9;
+			transition: color 0.8s;
+			transition: border 0.8s;
+		}
+		p{
+			margin:10px;
+		}
+		#split{
+			font-size:3vh;
+		}
+		#na{
+			position:absolute;
+			right:2vw;
+			top:5vh;
+		}
+	</style>
+ </head>
+ <body>
+	<h1>File Spilter</h1>
+	<span id='na'>create by Q</span>
+	<div id='cont3'>
+		<div>
+			<p>To </p>
+			<input type='number' value='15'>
+			<p> kb</p>
+			<label class="custom-file-upload">
+				<input type="file" onchange='openfile(event)'/>
+				select file
+			</label>
+			
+		</div>
+		
+		<div>
+			<p id='split'>splitted file</p>
+		</div>
+		
+		
+		
+		<button id='btn'>SAVE</button>
+	</div>
+	
+	<script>
+	var button = document.getElementById('btn');
+	var openfile =function(event){
+		
+		var input = event.target;
+		var reader = new FileReader();
+		reader.onload=function(){
+			button.style.color='green';
+			button.style.border='10px solid green'
+		}
+		reader.readAsText(input.files[0]);
+	}
+	
+	</script>
+</html>

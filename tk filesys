@@ -1,0 +1,109 @@
+import os
+import tkinter as tk
+from tkinter import filedialog
+from datetime import datetime
+
+class FileSelectorApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("File Selector")
+
+        # Set up frame
+        self.frame = tk.Frame(self.root)
+        self.frame.pack(padx=10, pady=10)
+
+        # Button to browse and select folder
+        self.folder_button = tk.Button(self.frame, text="Select Folder", command=self.select_folder)
+        self.folder_button.grid(row=0, column=0, padx=5, pady=5)
+
+        # Canvas and Scrollbar for files
+        self.canvas = tk.Canvas(self.frame)
+        self.scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=self.canvas.yview)
+        self.canvas.grid(row=1, column=0, padx=5, pady=5)
+        self.scrollbar.grid(row=1, column=1, sticky="ns", padx=5, pady=5)
+
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        self.file_frame = tk.Frame(self.canvas)  # Frame to hold checkboxes and metadata
+        self.canvas.create_window((0, 0), window=self.file_frame, anchor="nw")
+
+        # File list and checkbuttons
+        self.checkbuttons = []  # List of checkbutton objects
+
+        # Button to display selected files
+        self.display_button = tk.Button(self.frame, text="Show Selected Files", command=self.show_selected)
+        self.display_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
+
+    def select_folder(self):
+        # Ask the user to select a folder
+        folder_path = filedialog.askdirectory(title="Select Folder")
+        if folder_path:
+            self.load_files_in_folder(folder_path)
+
+    def load_files_in_folder(self, folder_path):
+        # Clear previous file list and checkboxes
+        for widget in self.file_frame.winfo_children():
+            widget.destroy()
+
+        # Get all files and directories in the folder
+        try:
+            files_and_folders = os.listdir(folder_path)
+            files_and_folders = sorted(files_and_folders)  # Sorting files for better display
+            self.checkbuttons.clear()
+
+            # Generate checkbuttons and metadata for each item
+            for index, item in enumerate(files_and_folders):
+                item_path = os.path.join(folder_path, item)
+                is_directory = os.path.isdir(item_path)
+                
+                # Retrieve metadata: type, creation date, and modification date
+                file_type = "Directory" if is_directory else "File"
+                creation_date = self.format_date(os.path.getctime(item_path))
+                modified_date = self.format_date(os.path.getmtime(item_path))
+                
+                # Create a checkbutton for each file/folder with metadata
+                var = tk.BooleanVar()
+                checkbox = tk.Checkbutton(self.file_frame, text=item, variable=var)
+                checkbox.grid(row=index, column=0, sticky="w", padx=10, pady=5)
+
+                # Add metadata columns
+                type_label = tk.Label(self.file_frame, text=file_type)
+                type_label.grid(row=index, column=1, padx=10, pady=5)
+                creation_label = tk.Label(self.file_frame, text=creation_date)
+                creation_label.grid(row=index, column=2, padx=10, pady=5)
+                modified_label = tk.Label(self.file_frame, text=modified_date)
+                modified_label.grid(row=index, column=3, padx=10, pady=5)
+
+                # Store the checkbox and its associated metadata
+                self.checkbuttons.append((checkbox, var, item_path, file_type, creation_date, modified_date))
+
+            # Update scroll region
+            self.file_frame.update_idletasks()
+            self.canvas.config(scrollregion=self.canvas.bbox("all"))
+        except Exception as e:
+            print(f"Error loading folder: {e}")
+    
+    def format_date(self, timestamp):
+        """Helper method to format timestamp into human-readable date"""
+        return datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M:%S")
+
+    def show_selected(self):
+        """Show selected files and their metadata"""
+        selected_files = []
+        for checkbox, var, item_path, file_type, creation_date, modified_date in self.checkbuttons:
+            if var.get():  # If checkbox is selected
+                selected_files.append((item_path, file_type, creation_date, modified_date))
+        
+        if selected_files:
+            print("Selected files/folders:")
+            for file in selected_files:
+                print(f"File: {file[0]}, Type: {file[1]}, Created: {file[2]}, Modified: {file[3]}")
+        else:
+            print("No files/folders selected.")
+
+
+# Main function to run the app
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = FileSelectorApp(root)
+    root.mainloop()
